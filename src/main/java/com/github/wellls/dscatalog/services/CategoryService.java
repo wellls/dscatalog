@@ -22,4 +22,11 @@ public class CategoryService {
                 .map(category -> new CategoryDTO(category.getId(), category.getName()))
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public CategoryDTO findById(Long id) {
+        return categoryRepository.findById(id)
+                .map(category -> new CategoryDTO(category.getId(), category.getName()))
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+    }
 }
