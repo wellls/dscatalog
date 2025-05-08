@@ -3,12 +3,14 @@ package com.github.wellls.dscatalog.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.wellls.dscatalog.dtos.CategoryDTO;
 import com.github.wellls.dscatalog.entities.Category;
 import com.github.wellls.dscatalog.repositories.CategoryRepository;
+import com.github.wellls.dscatalog.services.exceptions.DatabaseException;
 import com.github.wellls.dscatalog.services.exceptions.ResourceNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -50,6 +52,18 @@ public class CategoryService {
             return new CategoryDTO(category);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Category not found");
+        }
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        try {
+            if (!categoryRepository.existsById(id)) {
+                throw new ResourceNotFoundException("Category not found");
+            }
+            categoryRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException();
         }
     }
 }
