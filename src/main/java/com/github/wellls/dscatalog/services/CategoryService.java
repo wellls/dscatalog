@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.wellls.dscatalog.dtos.CategoryDTO;
 import com.github.wellls.dscatalog.repositories.CategoryRepository;
+import com.github.wellls.dscatalog.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class CategoryService {
@@ -27,6 +28,6 @@ public class CategoryService {
     public CategoryDTO findById(Long id) {
         return categoryRepository.findById(id)
                 .map(category -> new CategoryDTO(category.getId(), category.getName()))
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
     }
 }
