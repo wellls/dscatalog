@@ -11,6 +11,8 @@ import com.github.wellls.dscatalog.entities.Category;
 import com.github.wellls.dscatalog.repositories.CategoryRepository;
 import com.github.wellls.dscatalog.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class CategoryService {
 
@@ -38,5 +40,16 @@ public class CategoryService {
         category.setName(categoryDTO.getName());
         category = categoryRepository.save(category);
         return new CategoryDTO(category.getId(), category.getName());
+    }
+
+    @Transactional
+    public CategoryDTO update(Long id, CategoryDTO categoryDTO) {
+        try {
+            Category category = categoryRepository.getReferenceById(id);
+            category.setName(categoryDTO.getName());
+            return new CategoryDTO(category);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Category not found");
+        }
     }
 }
