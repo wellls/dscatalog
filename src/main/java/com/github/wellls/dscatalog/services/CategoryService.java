@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.wellls.dscatalog.dtos.CategoryDTO;
+import com.github.wellls.dscatalog.entities.Category;
 import com.github.wellls.dscatalog.repositories.CategoryRepository;
 import com.github.wellls.dscatalog.services.exceptions.ResourceNotFoundException;
 
@@ -29,5 +30,13 @@ public class CategoryService {
         return categoryRepository.findById(id)
                 .map(category -> new CategoryDTO(category.getId(), category.getName()))
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+    }
+
+    @Transactional
+    public CategoryDTO insert(CategoryDTO categoryDTO) {
+        var category = new Category();
+        category.setName(categoryDTO.getName());
+        category = categoryRepository.save(category);
+        return new CategoryDTO(category.getId(), category.getName());
     }
 }
