@@ -1,11 +1,11 @@
 package com.github.wellls.dscatalog.services;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,12 +58,13 @@ public class CategoryService {
     @Transactional
     public void delete(Long id) {
         try {
-            if (!categoryRepository.existsById(id)) {
-                throw new ResourceNotFoundException("Category not found");
-            }
-            categoryRepository.deleteById(id);
+            Category entity = categoryRepository.getReferenceById(id);
+            categoryRepository.delete(entity);
+            categoryRepository.flush();
+        } catch (EmptyResultDataAccessException | JpaObjectRetrievalFailureException e) {
+            throw new ResourceNotFoundException();
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException();
+            throw new DatabaseException("Referential integrity violation. Cannot delete.");
         }
     }
 }
