@@ -52,23 +52,19 @@ public class ProductService {
 
     @Transactional
     public ProductDTO update(Long id, ProductDTO productDTO) {
-        try {
-            Product product = productRepository.getReferenceById(id);
-            copyDtoToEntity(productDTO, product);
-            return new ProductDTO(product);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Product not found");
-        }
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        copyDtoToEntity(productDTO, product);
+        product = productRepository.save(product);
+        return new ProductDTO(product);
     }
 
     @Transactional
     public void delete(Long id) {
         try {
-            Product entity = productRepository.getReferenceById(id);
+            Product entity = productRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
             productRepository.delete(entity);
-            productRepository.flush();
-        } catch (EmptyResultDataAccessException | JpaObjectRetrievalFailureException e) {
-            throw new ResourceNotFoundException();
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Referential integrity violation. Cannot delete.");
         }
